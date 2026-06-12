@@ -1,8 +1,3 @@
-import makeWASocket, {
-  useMultiFileAuthState,
-  DisconnectReason,
-  fetchLatestBaileysVersion,
-} from "@whiskeysockets/baileys"
 import { Boom } from "@hapi/boom"
 import path from "path"
 import qrcode from "qrcode-terminal"
@@ -215,6 +210,8 @@ async function handleMessage(sock: any, from: string, text: string) {
 }
 
 export async function startWhatsAppBot() {
+  const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = await import("@whiskeysockets/baileys")
+  const { state, saveCreds } = await useMultiFileAuthState(AUTH_FOLDER)
   const { state, saveCreds } = await useMultiFileAuthState(AUTH_FOLDER)
   const { version } = await fetchLatestBaileysVersion()
 
