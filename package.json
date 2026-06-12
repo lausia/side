@@ -10,7 +10,7 @@
                     "dev:web":  "npm run dev --workspace=apps/web",
                     "dev:bot":  "npm run dev --workspace=apps/bot",
                     "dev":  "npm run dev:web \u0026 npm run dev:bot",
-                    "build":  "npx prisma generate --schema=packages/database/prisma/schema.prisma \u0026\u0026 npm run build --workspace=apps/bot"
+                    "build":  "npx prisma generate --schema=packages/database/prisma/schema.prisma \u0026\u0026 npm run build --workspace=packages/database \u0026\u0026 npm run build --workspace=apps/bot"
                 },
     "dependencies":  {
                          "prisma":  "^5.22.0"
