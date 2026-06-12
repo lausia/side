@@ -51,6 +51,13 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", service: "enso-bot" })
 })
 
+
+app.get("/qr", (req, res) => {
+  const qr = process.env._QR_CODE
+  if (!qr) return res.send("QR Code não disponível ainda. Aguarda...")
+  res.send(`<img src="${qr}" style="width:300px"/>`)
+})
+
 // ⚠️ httpServer em vez de app.listen
 httpServer.listen(PORT, () => {
   console.log(`🚀 ENSO Bot API rodando na porta ${PORT}`)

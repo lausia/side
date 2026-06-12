@@ -228,7 +228,13 @@ export async function startWhatsAppBot() {
   sock.ev.on("connection.update", (update: any) => {
     const { connection, lastDisconnect, qr } = update
 
-    if (qr) qrcode.generate(qr, { small: true })
+    if (qr) {
+  qrcode.generate(qr, { small: true })
+  const QRCode = require("qrcode")
+  QRCode.toDataURL(qr).then((url: string) => {
+    process.env._QR_CODE = url
+  })
+}
 
     if (connection === "close") {
       const shouldReconnect =
