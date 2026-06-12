@@ -210,7 +210,9 @@ async function handleMessage(sock: any, from: string, text: string) {
 }
 
 export async function startWhatsAppBot() {
-  const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = await import("@whiskeysockets/baileys")
+  const baileys = await (new Function('return import("@whiskeysockets/baileys")')())
+const makeWASocket = baileys.default
+const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = baileys
   const { state, saveCreds } = await useMultiFileAuthState(AUTH_FOLDER)
   const { version } = await fetchLatestBaileysVersion()
 
