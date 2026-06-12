@@ -1,7 +1,7 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install && npx tsc --version && npx tsc && echo BUILD_OK"
+buildCommand = "npm run db:generate --workspace=packages/database && npm run build --workspace=apps/bot"
 
 [deploy]
-startCommand = "node dist/index.js"
+startCommand = "node apps/bot/dist/index.js"
 restartPolicyType = "always"
