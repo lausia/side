@@ -57,7 +57,7 @@ async function getEventState(phone: string) {
 
 async function handleLiveMessage(sock: any, from: string, text: string, participant: any, eventParticipant: any, event: any) {
   if (!eventParticipant.checkedIn) {
-    await sock.sendMessage(from, { text: "âŒ SÃ³ participantes com check-in feito podem participar." })
+    await sock.sendMessage(from, { text: "So participantes com check-in feito podem participar." })
     return
   }
 
@@ -68,15 +68,15 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
     sessionState.delete(from)
 
     if (text.length < 10) {
-      await sock.sendMessage(from, { text: "âŒ Pergunta muito curta. Tenta de novo enviando *2*." })
+      await sock.sendMessage(from, { text: "Pergunta muito curta. Tenta de novo enviando *2*." })
       return
     }
 
-    await sock.sendMessage(from, { text: "â³ A analisar a tua pergunta..." })
+    await sock.sendMessage(from, { text: "A analisar a tua pergunta..." })
     const aiResult = await analyzeQuestion(text, event.topic ?? "evento geral")
 
     if (!aiResult.approved) {
-      await sock.sendMessage(from, { text: `âŒ Pergunta nÃ£o aprovada.\n\n_Motivo: ${aiResult.reason}_` })
+      await sock.sendMessage(from, { text: `Pergunta não aprovada.\n\n_Motivo: ${aiResult.reason}_` })
       return
     }
 
@@ -95,14 +95,14 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
     })
 
     io.to(`event:${event.id}`).emit("question:new", { ...question, voteCount: 0 })
-    await sock.sendMessage(from, { text: `âœ… Pergunta aprovada e na fila!\n\n_"${text}"_` })
+    await sock.sendMessage(from, { text: `Pergunta aprovada e na fila!\n\n_"${text}"_` })
     return
   }
 
   if (session?.action === "vote" && session.questions) {
     const num = parseInt(text.trim())
     if (isNaN(num) || num < 1 || num > session.questions.length) {
-      await sock.sendMessage(from, { text: "âŒ NÃºmero invÃ¡lido. Envia o nÃºmero da pergunta que queres votar." })
+      await sock.sendMessage(from, { text: "Numero invalido. Envia o numero da pergunta que queres votar." })
       return
     }
 
@@ -115,12 +115,12 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
       })
       const voteCount = await prisma.vote.count({ where: { questionId: chosen.id } })
       io.to(`event:${event.id}`).emit("question:voted", { questionId: chosen.id, voteCount })
-      await sock.sendMessage(from, { text: `âœ… Voto registado na pergunta:\n_"${chosen.content}"_` })
+      await sock.sendMessage(from, { text: `Voto registado na pergunta:\n_"${chosen.content}"_` })
     } catch (err: any) {
       if (err?.code === "P2002") {
-        await sock.sendMessage(from, { text: "âŒ JÃ¡ votaste nesta pergunta." })
+        await sock.sendMessage(from, { text: "Ja votaste nesta pergunta." })
       } else {
-        await sock.sendMessage(from, { text: "âŒ Erro ao registar voto." })
+        await sock.sendMessage(from, { text: "Erro ao registar voto." })
       }
     }
     return
@@ -141,7 +141,7 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
       .sort((a: any, b: any) => b.voteCount - a.voteCount)
 
     if (sorted.length === 0) {
-      await sock.sendMessage(from, { text: "ðŸ“­ Ainda nÃ£o hÃ¡ perguntas na fila." })
+      await sock.sendMessage(from, { text: " Ainda não há perguntas na fila." })
       return
     }
 
@@ -152,19 +152,19 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
       .join("\n\n")
 
     await sock.sendMessage(from, {
-      text: `ðŸ“‹ *Perguntas na fila:*\n\n${lista}\n\nResponde com o *nÃºmero* da pergunta que queres votar.`,
+      text: `ðŸ“‹ *Perguntas na fila:*\n\n${lista}\n\nResponde com o numero* da pergunta que queres votar.`,
     })
     return
   }
 
   if (lower === "2") {
     sessionState.set(from, { action: "question" })
-    await sock.sendMessage(from, { text: "âœï¸ Escreve a tua pergunta:" })
+    await sock.sendMessage(from, { text: "Escreve a tua pergunta:" })
     return
   }
 
   await sock.sendMessage(from, {
-    text: `ðŸ‘‹ OlÃ¡, ${participant.name}! O evento *${event.name}* estÃ¡ ao vivo.\n\nO que queres fazer?\n\n*1* â€” Ver perguntas e votar ðŸ—³ï¸\n*2* â€” Fazer uma pergunta âœï¸`,
+    text: `ðŸ‘‹ Olá, ${participant.name}! O evento *${event.name}* estÃ¡ ao vivo.\n\nO que queres fazer?\n\n*1* â€” Ver perguntas e votar ðŸ—³ï¸\n*2* â€” Fazer uma pergunta âœï¸`,
   })
 }
 
@@ -174,7 +174,7 @@ async function handleMessage(sock: any, from: string, text: string) {
 
   if (!participant || !event) {
     await sock.sendMessage(from, {
-      text: "OlÃ¡! NÃ£o encontrÃ¡mos a tua inscriÃ§Ã£o. Inscreve-te primeiro atravÃ©s do link do evento.",
+      text: "Olá! Não encontrámos a tua inscrição. Inscreve-te primeiro através do link do evento.",
     })
     return
   }
@@ -184,7 +184,7 @@ async function handleMessage(sock: any, from: string, text: string) {
   switch (state) {
     case "ACTIVE":
       await sock.sendMessage(from, {
-        text: `OlÃ¡, ${participant.name}! \n\nEstÃ¡s inscrito no evento *${eventName}*.\n\nðŸ“… Data: ${new Date(event.date).toLocaleDateString("pt-PT")}\nâ° InÃ­cio: ${new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}\n\nEnviaremos um lembrete 1h antes. AtÃ© jÃ¡!`,
+        text: `Olá!, ${participant.name}! \n\nEstás inscrito no evento *${eventName}*.\n\nna Data: ${new Date(event.date).toLocaleDateString("pt-PT")}\n Início: ${new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}\n\nEnviaremos um lembrete 1h antes. Ate ja!`,
       })
       break
 
@@ -194,7 +194,7 @@ async function handleMessage(sock: any, from: string, text: string) {
 
     case "FINISHED":
       await sock.sendMessage(from, {
-        text: `O evento *${eventName}* jÃ¡ terminou. Obrigado pela tua participaÃ§Ã£o! ðŸ™`,
+        text: `O evento *${eventName}* ja terminou. Obrigado pela tua participacao! ðŸ™`,
       })
       break
 
@@ -205,7 +205,7 @@ async function handleMessage(sock: any, from: string, text: string) {
       break
 
     default:
-      await sock.sendMessage(from, { text: "OlÃ¡! Como posso ajudar?" })
+      await sock.sendMessage(from, { text: "Olá! Como posso ajudar?" })
   }
 }
 
