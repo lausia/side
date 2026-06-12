@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm install && npm run db:generate --workspace=packages/database && npm run build --workspace=apps/bot"
+buildCommand = "NODE_ENV=development npm install && npm run db:generate --workspace=packages/database && npm run build --workspace=apps/bot"
 
 [deploy]
 startCommand = "node apps/bot/dist/index.js"
