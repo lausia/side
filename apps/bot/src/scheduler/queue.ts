@@ -1,13 +1,13 @@
-import { Queue } from "bullmq"
-import { Redis } from "bullmq"
+﻿import { Queue } from "bullmq"
+import IORedis from "bullmq/node_modules/ioredis"
 
-const connection = new Redis({
+const connection = new IORedis({
   host: "yamanote.proxy.rlwy.net",
   port: 53545,
   username: "default",
   password: "JAiQAOYxrlxnsfHsqthqAuKFdcAdltQC",
   maxRetriesPerRequest: null,
-} as any)
+})
 
 console.log("Connecting to Redis: yamanote.proxy.rlwy.net:53545")
 
