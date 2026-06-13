@@ -6,7 +6,7 @@ import { analyzeQuestion } from "../services/ai-service"
 import { io } from "../index"
 
 const sessionState: Map<string, { action: "question" | "vote"; questions?: any[] }> = new Map()
-const AUTH_FOLDER = path.join(__dirname, "../../auth")
+const AUTH_FOLDER = "/app/auth"
 
 async function getEventState(phone: string) {
   const normalizedPhone = phone.startsWith("258") ? phone : `258${phone}`
