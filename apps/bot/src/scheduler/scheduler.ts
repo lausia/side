@@ -2,6 +2,7 @@ import { Worker, Job } from "bullmq"
 import { connection, reminderQueue, followUpQueue } from "./queue"
 import { prisma } from "@enso/database"
 import { sendFollowUpEmail } from "../services/email-service"
+import { getSock } from "../whatsapp/socket-instance"
 
 // ─── Tipos dos jobs ───────────────────────────────────────────────────────────
 
@@ -145,7 +146,7 @@ export async function rescheduleEventJobs(
 
 // ─── Workers — processam os jobs quando disparam ─────────────────────────────
 
-export function startWorkers(sock: any) {
+export function startWorkers() {
   // Worker de lembretes
   new Worker<ReminderJobData>(
     "reminders",
@@ -158,9 +159,11 @@ export function startWorkers(sock: any) {
         minute: "2-digit",
       })
 
-      await sock.sendMessage(`${phone}@s.whatsapp.net`, {
-        text: `⏰ Olá, ${name}! Lembrete: o evento *${eventName}* começa ${timeText} às ${hora}. Até já!`,
-      })
+      const currentSock = getSock()
+  if (!currentSock) throw new Error("WhatsApp não conectado")
+  await currentSock.sendMessage(`${phone}@s.whatsapp.net`, {
+    text: `⏰ Olá, ${name}! Lembrete: o evento *${eventName}* começa ${timeText} às ${hora}. Até já!`,
+  })
 
       console.log(`✅ Lembrete ${type} enviado para ${name}`)
     },
@@ -173,9 +176,11 @@ export function startWorkers(sock: any) {
     async (job: Job<FollowUpJobData>) => {
       const { phone, email, name, eventName } = job.data
 
-      await sock.sendMessage(`${phone}@s.whatsapp.net`, {
-        text: `🙏 Olá, ${name}! Obrigado por participares no evento *${eventName}*.\n\nEm breve receberás os materiais por email. Até ao próximo evento!`,
-      })
+      const currentSock = getSock()
+  if (!currentSock) throw new Error("WhatsApp não conectado")
+  await currentSock.sendMessage(`${phone}@s.whatsapp.net`, {
+    text: `🙏 Olá, ${name}! Obrigado por participares no evento *${eventName}*.\n\nEm breve receberás os materiais por email. Até ao próximo evento!`,
+  })
 
       await sendFollowUpEmail(email, name, eventName)
 

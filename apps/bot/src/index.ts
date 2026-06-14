@@ -66,7 +66,7 @@ httpServer.listen(PORT, () => {
 startWhatsAppBot()
   .then((sock) => {
     setSock(sock)
-    startWorkers(sock)
+    startWorkers()
     console.log("✅ Scheduler iniciado")
   })
   .catch(console.error)
