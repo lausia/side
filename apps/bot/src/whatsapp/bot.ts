@@ -253,7 +253,8 @@ const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = b
       if (!msg.message || msg.key.fromMe) continue
 
       const from = msg.key.remoteJid
-      if (!from || from.includes("@g.us") || from.includes("@lid")) continue
+      console.log("📨 Mensagem de:", from)
+      if (!from || from.includes("@g.us")) continue
 
       const text =
         msg.message.conversation ||
