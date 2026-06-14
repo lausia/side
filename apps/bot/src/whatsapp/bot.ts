@@ -168,11 +168,14 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
   })
 }
 
-async function handleMessage(sock: any, from: string, text: string) {
-  const phone = from.replace("@s.whatsapp.net", "").replace("@lid", "")
-   console.log("📱 Phone recebido:", phone)
-  const normalizedPhone = phone.startsWith("258") ? phone : `258${phone}`
-  console.log("📱 Phone normalizado:", normalizedPhone)
+async function handleMessage(sock: any, from: string,text: string, senderPn?: string) {
+
+const rawPhone = senderPn 
+    ? senderPn.replace("@s.whatsapp.net", "") 
+    : from.replace("@s.whatsapp.net", "").replace("@lid", "")
+  const phone = rawPhone.startsWith("258") ? rawPhone : `258${rawPhone}`
+  console.log("📱 Phone final:", phone)
+
   const { participant, eventParticipant, event, state } = await getEventState(phone)
 
   if (!participant || !event) {
@@ -266,7 +269,7 @@ const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = b
       if (!text) continue
 
       try {
-        await handleMessage(sock, from, text)
+        await handleMessage(sock, from, text, msg.key.senderPn)
       } catch (err) {
         console.error("Erro ao processar mensagem:", err)
       }
