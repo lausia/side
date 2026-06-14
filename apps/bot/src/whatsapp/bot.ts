@@ -169,7 +169,7 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
 }
 
 async function handleMessage(sock: any, from: string, text: string) {
-  const phone = from.replace("@s.whatsapp.net", "")
+  const phone = from.replace("@s.whatsapp.net", "").replace("@lid", "")
    console.log("📱 Phone recebido:", phone)
   const normalizedPhone = phone.startsWith("258") ? phone : `258${phone}`
   console.log("📱 Phone normalizado:", normalizedPhone)
@@ -253,7 +253,7 @@ const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = b
       if (!msg.message || msg.key.fromMe) continue
 
       const from = msg.key.remoteJid
-      if (!from || from.includes("@g.us")) continue
+      if (!from || from.includes("@g.us") || from.includes("@lid")) continue
 
       const text =
         msg.message.conversation ||
