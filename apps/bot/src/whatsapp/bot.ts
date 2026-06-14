@@ -256,6 +256,8 @@ const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = b
       console.log("📨 Mensagem de:", from)
       if (!from || from.includes("@g.us")) continue
 
+      console.log("MSG FULL:", JSON.stringify(msg).substring(0, 800))
+
       const text =
         msg.message.conversation ||
         msg.message.extendedTextMessage?.text ||
