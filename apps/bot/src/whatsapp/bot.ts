@@ -200,7 +200,7 @@ const rawPhone = senderPn
 
     case "FINISHED":
       await sock.sendMessage(from, {
-        text: `O evento *${eventName}* ja terminou. Obrigado pela tua participacao! ðŸ™`,
+        text: `O evento *${eventName}* ja terminou. Obrigado pela tua participacao! `,
       })
       break
 
