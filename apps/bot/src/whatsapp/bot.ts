@@ -170,6 +170,9 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
 
 async function handleMessage(sock: any, from: string, text: string) {
   const phone = from.replace("@s.whatsapp.net", "")
+   console.log("📱 Phone recebido:", phone)
+  const normalizedPhone = phone.startsWith("258") ? phone : `258${phone}`
+  console.log("📱 Phone normalizado:", normalizedPhone)
   const { participant, eventParticipant, event, state } = await getEventState(phone)
 
   if (!participant || !event) {
