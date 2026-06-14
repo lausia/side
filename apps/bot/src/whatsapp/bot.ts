@@ -110,6 +110,13 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
     const chosen = session.questions[num - 1]
 
     try {
+
+            if (chosen.eventParticipant.participant.id === participant.id) {
+        await sock.sendMessage(from, { text: "Não podes votar na tua própria pergunta." })
+        sessionState.delete(from)
+        return
+      }
+
       await prisma.vote.create({
         data: { questionId: chosen.id, participantId: participant.id },
       })
@@ -132,7 +139,9 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
         eventParticipant: { eventId: event.id },
         status: { in: ["AI_APPROVED", "APPROVED"] },
       },
-      include: { votes: true },
+      include: { votes: true,
+        eventParticipant: { include: { participant: true } }
+      },
       orderBy: { createdAt: "asc" },
     })
 
