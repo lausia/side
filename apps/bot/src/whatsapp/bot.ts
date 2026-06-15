@@ -157,11 +157,11 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
     sessionState.set(from, { action: "vote", questions: sorted })
 
     const lista = sorted
-      .map((q: any, i: number) => `*${i + 1}.* ${q.content}\n    ðŸ”º ${q.voteCount} votos`)
+      .map((q: any, i: number) => `*${i + 1}.* ${q.content}\n     ${q.voteCount} votos`)
       .join("\n\n")
 
     await sock.sendMessage(from, {
-      text: `ðŸ“‹ *Perguntas na fila:*\n\n${lista}\n\nResponde com o numero* da pergunta que queres votar.`,
+      text: ` *Perguntas na fila:*\n\n${lista}\n\nResponde com o numero* da pergunta que queres votar.`,
     })
     return
   }
@@ -173,7 +173,7 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
   }
 
   await sock.sendMessage(from, {
-    text: `ðŸ‘‹ Olá, ${participant.name}! O evento *${event.name}* estÃ¡ ao vivo.\n\nO que queres fazer?\n\n*1* â€” Ver perguntas e votar ðŸ—³ï¸\n*2* â€” Fazer uma pergunta âœï¸`,
+    text: `ðŸ‘‹ Olá, ${participant.name}! O evento *${event.name}* esta ao vivo.\n\nO que queres fazer?\n\n*1.* ” Ver perguntas e votar; \n*2.* ” Fazer uma pergunta;`,
   })
 }
 
@@ -253,10 +253,10 @@ const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = b
       const shouldReconnect =
         (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut
 
-      console.log("ConexÃ£o fechada. Reconectando:", shouldReconnect)
+      console.log("Conexao fechada. Reconectando:", shouldReconnect)
       if (shouldReconnect) startWhatsAppBot()
     } else if (connection === "open") {
-      console.log("âœ… WhatsApp Bot conectado!")
+      console.log("WhatsApp Bot conectado!")
     }
   })
 
