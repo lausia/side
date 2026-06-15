@@ -23,7 +23,7 @@ class GeminiProvider implements AIProvider {
   }
 
   async analyze(question: string, eventTopic: string): Promise<AIAnalysisResult> {
-    const model = this.client.getGenerativeModel({ model: "gemini-1.5-pro" })
+    const model = this.client.getGenerativeModel({ model: "gemini-2.0-flash" })
 
     const prompt = `
 És um moderador de perguntas para um evento sobre: "${eventTopic}".
