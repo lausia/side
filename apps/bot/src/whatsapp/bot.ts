@@ -194,6 +194,14 @@ const rawPhone = senderPn
     return
   }
 
+  // DEBUG TEMPORÁRIO
+  if (text.trim() === "debug") {
+    await sock.sendMessage(from, {
+      text: `DEBUG\ndate_iso: ${event.date.toISOString()}\nstart_iso: ${event.startTime.toISOString()}\nend_iso: ${event.endTime.toISOString()}\nstart_maputo: ${event.startTime.toLocaleString("pt-PT", { timeZone: "Africa/Maputo" })}\nnow_iso: ${new Date().toISOString()}\nTZ: ${process.env.TZ || "not set"}`,
+    })
+    return
+  }
+
   const eventName = event.name
 
   switch (state) {
