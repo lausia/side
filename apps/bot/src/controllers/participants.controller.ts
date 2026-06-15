@@ -107,8 +107,8 @@ export const registerParticipant = async (req: Request, res: Response) => {
     const { getSock } = require("../whatsapp/socket-instance")
 const sock = getSock()
 if (sock) {
-  const data = new Date(event.date).toLocaleDateString("pt-PT")
-  const hora = new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })
+const data = new Date(event.date).toLocaleDateString("pt-PT", { timeZone: "Africa/Maputo" })
+const hora = new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Maputo" })
   sock.sendMessage(`${participant.phone}@s.whatsapp.net`, {
     text: `✅ Olá, ${participant.name}! A tua inscrição no evento *${event.name}* foi confirmada!\n\n📅 Data: ${data}\n⏰ Início: ${hora}${event.location ? `\n📍 Local: ${event.location}` : ""}\n\nAté já!`
   }).catch((err: any) => console.error("Erro ao enviar WhatsApp de confirmação:", err))
