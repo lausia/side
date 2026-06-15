@@ -173,7 +173,7 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
   }
 
   await sock.sendMessage(from, {
-    text: `ðŸ‘‹ Olá, ${participant.name}! O evento *${event.name}* esta ao vivo.\n\nO que queres fazer?\n\n*1.* ” Ver perguntas e votar; \n*2.* ” Fazer uma pergunta;`,
+    text: `‹ Olá, ${participant.name}! O evento *${event.name}* esta ao vivo.\n\nO que queres fazer?\n\n*1.* ” Ver perguntas e votar; \n*2.* ” Fazer uma pergunta;`,
   })
 }
 
@@ -199,7 +199,10 @@ const rawPhone = senderPn
   switch (state) {
     case "ACTIVE":
       await sock.sendMessage(from, {
-        text: `Olá!, ${participant.name}! \n\nEstás inscrito no evento *${eventName}*.\n\nna Data: ${new Date(event.date).toLocaleDateString("pt-PT")}\n Início: ${new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}\n\nEnviaremos um lembrete 1h antes. Ate ja!`,
+        text: `Olá!, ${participant.name}! \n\nEstás inscrito no evento *${eventName}*.\n\nna Data: ${
+          new Date(event.date).toLocaleDateString("pt-PT", { timeZone: "Africa/Maputo" })}\n 
+          Início: ${new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Maputo" })}\n\n
+          Enviaremos um lembrete 1h antes. Ate ja!`,
       })
       break
 

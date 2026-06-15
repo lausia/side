@@ -157,6 +157,7 @@ export function startWorkers() {
       const hora = new Date(startTime).toLocaleTimeString("pt-PT", {
         hour: "2-digit",
         minute: "2-digit",
+        timeZone: "Africa/Maputo",
       })
 
       const currentSock = getSock()
@@ -165,7 +166,7 @@ export function startWorkers() {
     text: `⏰ Olá, ${name}! Lembrete: o evento *${eventName}* começa ${timeText} às ${hora}. Até já!`,
   })
 
-      console.log(`✅ Lembrete ${type} enviado para ${name}`)
+      console.log(`Lembrete ${type} enviado para ${name}`)
     },
     { connection }
   )
@@ -184,10 +185,10 @@ export function startWorkers() {
 
       await sendFollowUpEmail(email, name, eventName)
 
-      console.log(`✅ Follow-up enviado para ${name}`)
+      console.log(`Follow-up enviado para ${name}`)
     },
     { connection }
   )
 
-  console.log("✅ Workers BullMQ iniciados")
+  console.log("Workers BullMQ iniciados")
 }
