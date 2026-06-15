@@ -45,8 +45,8 @@ export default function NovoEventoPage() {
     setError("")
 
     try {
-      const startStr = `${form.date}T${form.startTime}:00`
-      const endStr = `${form.date}T${form.endTime}:00`
+      const startStr = `${form.date}T${form.startTime}:00+02:00`
+      const endStr = `${form.date}T${form.endTime}:00+02:00`
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/events`, {
         method: "POST",
