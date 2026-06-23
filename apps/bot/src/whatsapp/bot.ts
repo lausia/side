@@ -227,9 +227,9 @@ const rawPhone = senderPn
 
   switch (state) {
     case "ACTIVE":
-      await sock.sendMessage(from, {
-        text: `Olá!, ${participant.name}! \n\nEstás inscrito no evento *${eventName}*.\n\nna Data: ${new Date(event.date).toLocaleDateString("pt-PT")}\n Início: ${new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}\n\nEnviaremos um lembrete 1h antes. Ate ja!`,
-      })
+       await sock.sendMessage(from, {
+    text: `Olá, ${participant.name}! 👋\n\nEstás inscrito no evento *${eventName}*.\n\n📅 *Data:* ${new Date(event.date).toLocaleDateString("pt-PT")}\n⏰ *Início:* ${new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}\n\n🔔 Enviaremos um lembrete 1h antes. Até lá!`,
+  })
       break
 
     case "LIVE":

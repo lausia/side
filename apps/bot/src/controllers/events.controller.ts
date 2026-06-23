@@ -125,8 +125,11 @@ export const updateEvent = async (req: Request, res: Response) => {
     })
 
     for (const ep of participants) {
+      const novaData = new Date(date || event.date).toLocaleDateString("pt-PT", {
+        timeZone: "Africa/Maputo",
+      })
       await sock.sendMessage(`${ep.participant.phone}@s.whatsapp.net`, {
-        text: `📢 O evento *${event.name}* foi actualizado.\n\n⏰ Nova hora de início: *${novaHora}*\n\nAté já!`,
+       text: `📢 O evento *${event.name}* foi actualizado!\n\n📅 *Nova data:* ${novaData}\n⏰ *Novo início:* ${novaHora}\n\nAté lá! 👋`,
       }).catch((err: any) => console.error("Erro ao notificar participante:", err))
     }
   }
