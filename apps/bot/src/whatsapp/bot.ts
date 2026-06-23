@@ -57,26 +57,41 @@ async function getEventState(phone: string) {
 
 async function handleLiveMessage(sock: any, from: string, text: string, participant: any, eventParticipant: any, event: any) {
   if (!eventParticipant.checkedIn) {
-    await sock.sendMessage(from, { text: "So participantes com check-in feito podem participar." })
+    await sock.sendMessage(from, { text: "Só participantes com check-in feito podem participar." })
     return
   }
 
   const session = sessionState.get(from)
   const lower = text.toLowerCase().trim()
 
-  if (session?.action === "question") {
-    sessionState.delete(from)
+  // Menu helper
+  const showMenu = async () => {
+    await sock.sendMessage(from, {
+      text: `👋 Olá, ${participant.name}! O evento *${event.name}* está ao vivo.\n\nO que queres fazer?\n\n*1.* Ver perguntas e votar\n*2.* Fazer uma pergunta`,
+    })
+  }
 
-    if (text.length < 10) {
-      await sock.sendMessage(from, { text: "Pergunta muito curta. Tenta de novo enviando *2*." })
+  // Estado: aguarda pergunta
+  if (session?.action === "question") {
+    // Cancelar se mandar número ou palavra curta
+    if (lower === "0" || lower === "cancelar" || lower === "menu") {
+      sessionState.delete(from)
+      await showMenu()
       return
     }
 
-    await sock.sendMessage(from, { text: "A analisar a tua pergunta..." })
+    if (text.length < 10) {
+      await sock.sendMessage(from, { text: "Pergunta muito curta. Escreve uma pergunta completa ou envia *0* para cancelar." })
+      return
+    }
+
+    sessionState.delete(from)
+    await sock.sendMessage(from, { text: "⏳ A analisar a tua pergunta..." })
     const aiResult = await analyzeQuestion(text, event.topic ?? "evento geral")
 
     if (!aiResult.approved) {
-      await sock.sendMessage(from, { text: `Pergunta não aprovada.\n\n_Motivo: ${aiResult.reason}_` })
+      await sock.sendMessage(from, { text: `❌ Pergunta não aprovada.\n\n_Motivo: ${aiResult.reason}_` })
+      await showMenu()
       return
     }
 
@@ -95,52 +110,66 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
     })
 
     io.to(`event:${event.id}`).emit("question:new", { ...question, voteCount: 0 })
-    await sock.sendMessage(from, { text: `Pergunta aprovada e na fila!\n\n_"${text}"_` })
+
+    await sock.sendMessage(from, {
+      text: `✅ Pergunta aprovada e na fila!\n\n_"${text}"_\n\nOs participantes já podem votar nela.`,
+    })
+    await showMenu()
     return
   }
 
+  // Estado: aguarda voto
   if (session?.action === "vote" && session.questions) {
+    // Cancelar se não for número
+    if (lower === "0" || lower === "cancelar" || lower === "menu" || isNaN(parseInt(text.trim()))) {
+      sessionState.delete(from)
+      await showMenu()
+      return
+    }
+
     const num = parseInt(text.trim())
-    if (isNaN(num) || num < 1 || num > session.questions.length) {
-      await sock.sendMessage(from, { text: "Numero invalido. Envia o numero da pergunta que queres votar." })
+    if (num < 1 || num > session.questions.length) {
+      await sock.sendMessage(from, { text: `Número inválido. Escolhe entre 1 e ${session.questions.length}, ou envia *0* para cancelar.` })
       return
     }
 
     sessionState.delete(from)
     const chosen = session.questions[num - 1]
 
+    if (chosen.eventParticipant.participant.id === participant.id) {
+      await sock.sendMessage(from, { text: "❌ Não podes votar na tua própria pergunta." })
+      await showMenu()
+      return
+    }
+
     try {
-
-            if (chosen.eventParticipant.participant.id === participant.id) {
-        await sock.sendMessage(from, { text: "Não podes votar na tua própria pergunta." })
-        sessionState.delete(from)
-        return
-      }
-
       await prisma.vote.create({
         data: { questionId: chosen.id, participantId: participant.id },
       })
       const voteCount = await prisma.vote.count({ where: { questionId: chosen.id } })
       io.to(`event:${event.id}`).emit("question:voted", { questionId: chosen.id, voteCount })
-      await sock.sendMessage(from, { text: `Voto registado na pergunta:\n_"${chosen.content}"_` })
+      await sock.sendMessage(from, { text: `✅ Voto registado!\n\n_"${chosen.content}"_` })
     } catch (err: any) {
       if (err?.code === "P2002") {
-        await sock.sendMessage(from, { text: "Ja votaste nesta pergunta." })
+        await sock.sendMessage(from, { text: "Já votaste nesta pergunta." })
       } else {
         await sock.sendMessage(from, { text: "Erro ao registar voto." })
       }
     }
+    await showMenu()
     return
   }
 
+  // Sem sessão activa — processar menu
   if (lower === "1") {
     const questions = await prisma.question.findMany({
       where: {
         eventParticipant: { eventId: event.id },
         status: { in: ["AI_APPROVED", "APPROVED"] },
       },
-      include: { votes: true,
-        eventParticipant: { include: { participant: true } }
+      include: {
+        votes: true,
+        eventParticipant: { include: { participant: true } },
       },
       orderBy: { createdAt: "asc" },
     })
@@ -150,7 +179,8 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
       .sort((a: any, b: any) => b.voteCount - a.voteCount)
 
     if (sorted.length === 0) {
-      await sock.sendMessage(from, { text: " Ainda não há perguntas na fila." })
+      await sock.sendMessage(from, { text: "Ainda não há perguntas na fila." })
+      await showMenu()
       return
     }
 
@@ -161,20 +191,19 @@ async function handleLiveMessage(sock: any, from: string, text: string, particip
       .join("\n\n")
 
     await sock.sendMessage(from, {
-      text: ` *Perguntas na fila:*\n\n${lista}\n\nResponde com o numero* da pergunta que queres votar.`,
+      text: `📋 *Perguntas na fila:*\n\n${lista}\n\nResponde com o *número* da pergunta que queres votar, ou *0* para cancelar.`,
     })
     return
   }
 
   if (lower === "2") {
     sessionState.set(from, { action: "question" })
-    await sock.sendMessage(from, { text: "Escreve a tua pergunta:" })
+    await sock.sendMessage(from, { text: "✏️ Escreve a tua pergunta.\n\nEnvia *0* para cancelar." })
     return
   }
 
-  await sock.sendMessage(from, {
-    text: `‹ Olá, ${participant.name}! O evento *${event.name}* esta ao vivo.\n\nO que queres fazer?\n\n*1.* ” Ver perguntas e votar; \n*2.* ” Fazer uma pergunta;`,
-  })
+  // Qualquer outra mensagem — mostrar menu
+  await showMenu()
 }
 
 async function handleMessage(sock: any, from: string,text: string, senderPn?: string) {
@@ -193,17 +222,13 @@ const rawPhone = senderPn
     })
     return
   }
-  
 
   const eventName = event.name
 
   switch (state) {
     case "ACTIVE":
       await sock.sendMessage(from, {
-        text: `Olá!, ${participant.name}! \n\nEstás inscrito no evento *${eventName}*.\n\nna Data: ${
-          new Date(event.date).toLocaleDateString("pt-PT", { timeZone: "Africa/Maputo" })}\n 
-          Início: ${new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Maputo" })}\n\n
-          Enviaremos um lembrete 1h antes. Ate ja!`,
+        text: `Olá!, ${participant.name}! \n\nEstás inscrito no evento *${eventName}*.\n\nna Data: ${new Date(event.date).toLocaleDateString("pt-PT")}\n Início: ${new Date(event.startTime).toLocaleTimeString("pt-PT", { hour: "2-digit", minute: "2-digit" })}\n\nEnviaremos um lembrete 1h antes. Ate ja!`,
       })
       break
 
@@ -257,10 +282,10 @@ const { useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = b
       const shouldReconnect =
         (lastDisconnect?.error as Boom)?.output?.statusCode !== DisconnectReason.loggedOut
 
-      console.log("Conexao fechada. Reconectando:", shouldReconnect)
+      console.log("Conexo fechada. Reconectando:", shouldReconnect)
       if (shouldReconnect) startWhatsAppBot()
     } else if (connection === "open") {
-      console.log("WhatsApp Bot conectado!")
+      console.log(" WhatsApp Bot conectado!")
     }
   })
 
