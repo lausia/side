@@ -1,16 +1,12 @@
-﻿import { Queue } from "bullmq"
+import { Queue } from "bullmq"
 import IORedis from "bullmq/node_modules/ioredis"
 
-const connection = new IORedis({
-  host: "yamanote.proxy.rlwy.net",
-  port: 53545,
-  username: "default",
-  password: "JAiQAOYxrlxnsfHsqthqAuKFdcAdltQC",
-  maxRetriesPerRequest: null,
-})
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379"
+console.log("Connecting to Redis:", redisUrl)
 
-console.log("Connecting to Redis: yamanote.proxy.rlwy.net:53545")
+export const connection = new Redis(redisUrl, { maxRetriesPerRequest: null })
 
-export { connection }
 export const reminderQueue = new Queue("reminders", { connection })
 export const followUpQueue = new Queue("followups", { connection })
+
+console.log("✅ Queues BullMQ inicializadas")

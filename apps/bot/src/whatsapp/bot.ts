@@ -57,7 +57,7 @@ async function getEventState(phone: string) {
 
 async function handleLiveMessage(sock: any, from: string, text: string, participant: any, eventParticipant: any, event: any) {
   if (!eventParticipant.checkedIn) {
-    await sock.sendMessage(from, { text: "Só participantes com check-in feito podem participar." })
+    await sock.sendMessage(from, { text: "Só participantes com check-in feito podem participar.\nDirija-se ao staff para fazer o check-in." })
     return
   }
 
